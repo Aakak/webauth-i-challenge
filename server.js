@@ -5,18 +5,16 @@ const session = require("express-session");
 const KnexSessionStorage = require("connect-session-knex")(session); // <<<<<< for storing sessions in db
 
 const authRouter = require("./auth/auth-router.js");
-const usersRouter = require("../users/users-router.js");
-const knexConnection = require("../database/dbConfig.js");
-
-
+const usersRouter = require("./users/users-router.js");
+const knexConnection = require("./database/dbConfig.js");
 
 const server = express();
 const sessionConfiguration = {
-  name: "test-auth", 
+  name: "my-session", 
   secret: process.env.COOKIE_SECRET || "is it secret? is it safe?",
   cookie: {
     maxAge: 1000 * 60 * 60, 
-    secure: process.env.NODE_ENV === "development" ? false : true, 
+    secure: false, 
     httpOnly: true 
   },
   resave: false, 
@@ -29,11 +27,11 @@ const sessionConfiguration = {
     createtable: true
   })
 };
+server.use(session(sessionConfiguration));
 
 server.use(helmet());
 server.use(express.json());
 server.use(cors()); 
-server.use(session(sessionConfiguration));
 
 server.use("/api/auth", authRouter);
 server.use("/api/users", usersRouter);
